@@ -1,0 +1,6 @@
+value,description
+finalsize,finalsize is an R package to calculate the final size of a SIR epidemic in populations with heterogeneity in social contacts and infection susceptibility.
+serofoi,"serofoi is an R package to estimate the Force-of-Infection (FoI) of a given pathogen from age-disaggregated population-based cross-sectional serosurveys, using a Bayesian framework. The package provides a set of features for assessing model fitting, convergence and visualisation."
+epiparameter,epiparameter is an R package that contains a library of epidemiological parameters for infectious diseases and a set classes and helper functions to be able to work with the data. It also includes functions to extract and convert parameters from reported summary statistics.
+superspreading,superspreading is an R package that provides a set of functions to estimate and understand individual-level variation in transmission from secondary cases.
+linelist,"linelist provides a safe entry point to the Epiverse software ecosystem, adding a foundational layer through tagging, validation, and safeguarding epidemiological data, to help make data pipelines more straightforward and robust."

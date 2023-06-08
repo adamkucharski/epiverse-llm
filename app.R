@@ -27,8 +27,15 @@ wait_screen <- tagList(
 # Load credentials
 credential_load <- read.csv("data/credentials.csv")
 
-# Load package list
+# Load package list and descriptions
 package_list <- read.csv("data/package_list.csv")
+package_descriptions <- read.csv("data/package_descriptions.csv")
+
+# Load prompt intro
+intro_prompt <- read_file("data/intro_prompt.txt")
+
+# Load vignettes
+source("R/load_vignettes.R")
 
 # App UI ------------------------------------------------------------------
 
@@ -56,7 +63,10 @@ ui <- fluidPage(
       class = "well",
       div(class = "text-center",
           selectInput("package_choose",label = "Select a package:",
-                      choices=c("",sort(package_list$value)),selected="",multiple=F)
+                      choices=c("",sort(package_list$value)),selected="",multiple=F),
+          textOutput("package_info"),
+          br(),
+          p(tags$a(href="https://github.com/epiverse-trace/","View code on GitHub",target="_blank"))
       )
     ),
     
@@ -68,9 +78,9 @@ ui <- fluidPage(
         inputId     = "question_text",
         label       = "What would you like to do?",
         placeholder = "Enter text",
-        height = "250px"
+        height = "150px"
       ),
-      actionButton("question_button","Generate code",class="btn-primary")
+      disabled(actionButton("question_button","Generate code",class="btn-primary"))
       )
     ),
 
@@ -90,21 +100,54 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-  # Select package
+  # Store vignette text
+  vignette_text <- reactiveVal("")
   
+  # Render package info text and link
+  observe({
+    
+    package_name <- input$package_choose
+    
+    # Default info
+    info_out <- "Epiverse is a global collaborative working to develop a trustworthy data analysis ecosystem dedicated to getting ahead of the next public health crisis."
+    #link_out <- "https://github.com/epiverse-trace/" # Not currently used
+    
+    if(package_name!=""){
+      info_out <- package_descriptions |> dplyr::filter(value==package_name) |> select(description)
+      info_out <- info_out$description
+      #link_out <- paste0("https://github.com/epiverse-trace/",package_name) # Not currently used
+      shinyjs::enable("question_button") # Enable question button
+    }
+    
+    # Define vignette text
+    if(package_name=="epiparameter"){vignette_text(epiparameter_out)}
+    if(package_name=="superspreading"){vignette_text(superspreading_out)}
+    if(package_name=="serofoi"){vignette_text(serofoi_out)}
+    if(package_name=="finalsize"){vignette_text(finalsize_out)}
+    if(package_name=="linelist"){vignette_text(linelist_out)}
+    
+    output$package_info <- renderText(info_out)
+    #output$package_link <- renderText(link_out) # Not currently used
+  })
+    
   
+
   # Output LLM completion
   
   observeEvent(input$question_button,{
-    
+
     waiter_show(html = wait_screen,color="#b7c9e2")
     
+    # Define prompt text
+    prompt_text <- paste0(intro_prompt,vignette_text(),input$question_text)
+    
+    # Run completion
     llm_completion <- openai::create_completion(
       model = "text-davinci-003",
-      prompt = paste0(input$question_text),
+      prompt = prompt_text,
       temperature = 0.1,
       openai_api_key = credential_load$value,
-      max_tokens = 150
+      max_tokens = 500
     )
     
     output$api_response <- renderText({

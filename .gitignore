@@ -2,3 +2,4 @@
 *.csv
 *.Rhistory
 !package_list.csv
+!package_descriptions.csv
