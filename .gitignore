@@ -1,0 +1,4 @@
+*.DS_Store
+*.csv
+*.Rhistory
+!package_list.csv
