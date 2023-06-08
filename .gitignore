@@ -1,5 +1,6 @@
 *.DS_Store
 *.csv
 *.Rhistory
+*epiverse-llm.dcf
 !package_list.csv
 !package_descriptions.csv

@@ -57,6 +57,16 @@ ui <- fluidPage(
   div(
     id = "package-explorer", 
     style = "width: 600px; max-width: 100%; margin: 0 auto;",
+  
+    # Header
+    div(
+      class = "well",
+      div(class = "text-center",
+          h4("Explore Epiverse packages with LLMs"),
+          br(),
+          p(strong("Note: this dashboard is under development, so generated code is likely to have errors"))
+      )
+    ),
     
     # Package select
     div(
@@ -90,6 +100,9 @@ ui <- fluidPage(
       div(
         verbatimTextOutput("api_response"),
       )
+    ),
+    div(class = "text-center",
+        p(em("Code generated using the OpenAI API."))
     )
   )
   
@@ -139,20 +152,38 @@ server <- function(input, output, session) {
     waiter_show(html = wait_screen,color="#b7c9e2")
     
     # Define prompt text
-    prompt_text <- paste0(intro_prompt,vignette_text(),input$question_text)
+    prompt_text <- paste0(intro_prompt,vignette_text())
     
-    # Run completion
+    # Run completion - - -
+    # Instruct model
     llm_completion <- openai::create_completion(
-      model = "text-davinci-003",
-      prompt = prompt_text,
-      temperature = 0.1,
-      openai_api_key = credential_load$value,
-      max_tokens = 500
+     model = "text-davinci-003",
+     prompt = paste0(prompt_text,input$question_text),
+     temperature = 0.1,
+     openai_api_key = credential_load$value,
+     max_tokens = 500
     )
     
+    # Render resposne
     output$api_response <- renderText({
-      llm_completion$choices$text
+     llm_completion$choices$text
     })
+    
+    # Chat model
+    # llm_completion <- create_chat_completion(
+    #   model = "gpt-3.5-turbo", # "text-davinci-003",
+    #   messages = list(list("role"="system","content" = prompt_text),
+    #                   list("role"="user","content" = "Simulate an epidemic") #input$question_text
+    #                   ),
+    #   temperature = 0.1,
+    #   openai_api_key = credential_load$value,
+    #   max_tokens = 500
+    # )
+    # 
+    # # Render resposne
+    # output$api_response <- renderText({
+    #   llm_completion$choices$message.content
+    # })
     
     waiter_hide()
     
