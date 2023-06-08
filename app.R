@@ -14,6 +14,7 @@ library(readr)
 library(waiter)
 library(shinythemes)
 
+# Local testing - - -
 # deployApp(account = "kucharski")
 # library(shiny); library(rsconnect); setwd("~/Documents/GitHub/epiverse-llm/")
 
