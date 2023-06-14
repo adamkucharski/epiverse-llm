@@ -127,7 +127,7 @@ server <- function(input, output, session) {
     #link_out <- "https://github.com/epiverse-trace/" # Not currently used
     
     if(package_name!=""){
-      info_out <- package_descriptions |> dplyr::filter(value==package_name) |> select(description)
+      info_out <- package_descriptions |> dplyr::filter(value==package_name) |> dplyr::select(description)
       info_out <- info_out$description
       #link_out <- paste0("https://github.com/epiverse-trace/",package_name) # Not currently used
       shinyjs::enable("question_button") # Enable question button
@@ -152,39 +152,38 @@ server <- function(input, output, session) {
 
     waiter_show(html = wait_screen,color="#b7c9e2")
     
-    # Define prompt text
     prompt_text <- paste0(intro_prompt,vignette_text())
     
-    # Run completion - - -
+    # Run completion on user text - - -
     # Instruct model
-    llm_completion <- openai::create_completion(
-     model = "text-davinci-003",
-     prompt = paste0(prompt_text,input$question_text),
-     temperature = 0.1,
-     openai_api_key = credential_load$value,
-     max_tokens = 500
-    )
-    
-    # Render resposne
-    output$api_response <- renderText({
-     llm_completion$choices$text
-    })
-    
-    # Chat model
-    # llm_completion <- create_chat_completion(
-    #   model = "gpt-3.5-turbo", # "text-davinci-003",
-    #   messages = list(list("role"="system","content" = prompt_text),
-    #                   list("role"="user","content" = "Simulate an epidemic") #input$question_text
-    #                   ),
-    #   temperature = 0.1,
-    #   openai_api_key = credential_load$value,
-    #   max_tokens = 500
+    # llm_completion <- openai::create_completion(
+    #  model = "text-davinci-003",
+    #  prompt = paste0(prompt_text,input$question_text),
+    #  temperature = 0.1,
+    #  openai_api_key = credential_load$value,
+    #  max_tokens = 500
     # )
     # 
     # # Render resposne
     # output$api_response <- renderText({
-    #   llm_completion$choices$message.content
+    #  llm_completion$choices$text
     # })
+    # 
+    # Chat model
+    llm_completion <- create_chat_completion(
+      model = "gpt-3.5-turbo-16k", # "text-davinci-003",
+      messages = list(list("role"="system","content" = prompt_text),
+                      list("role"="user","content" = input$question_text)
+                      ),
+      temperature = 0.1,
+      openai_api_key = credential_load$value,
+      max_tokens = 5000
+    )
+
+    # Render resposne
+    output$api_response <- renderText({
+      llm_completion$choices$message.content
+    })
     
     waiter_hide()
     
