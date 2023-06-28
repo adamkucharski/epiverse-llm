@@ -95,7 +95,8 @@ ui <- fluidPage(
       class = "well",
       div(
         strong(textOutput("api_response_name")),
-        textOutput("api_response_description")
+        textOutput("api_response_description"),
+        tags$a(href=textOutput("api_response_link"), "Go to package",target="_blank")
       )
     ),
     div(class = "text-center",
@@ -136,14 +137,12 @@ server <- function(input, output, session) {
     cosine_sim <- apply(package_embeddings,1,function(x){lsa::cosine(x,query_vec)})
     best_match <- package_descriptions[which.max(cosine_sim),]
 
-    # Render response
-    output$api_response_name <- renderText({
-      best_match$value
-    })
+    # Render responses
+    output$api_response_name <- renderText({ best_match$value })
     
-    output$api_response_description <- renderText({
-      best_match$description
-    })
+    output$api_response_description <- renderText({ best_match$description })
+    
+    output$api_response_link <- renderText({ best_match$link })
     
     waiter_hide()
     
