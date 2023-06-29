@@ -13,7 +13,7 @@ library(openai)
 library(readr)
 library(waiter)
 library(shinythemes)
-library(lsa)
+library(lsa) 
 
 
 
@@ -42,8 +42,8 @@ intro_prompt <- read_file("data/intro_prompt.txt")
 # Load pre-prepped embeddings
 package_embeddings <- read_rds("data/embeddings/package_description_embeddings.rds")
 
-# Load vignettes
-source("R/load_vignettes.R")
+# Load vignettes - not currently used
+#source("R/load_vignettes.R")
 
 # App UI ------------------------------------------------------------------
 
@@ -88,21 +88,25 @@ ui <- fluidPage(
       ),
       actionButton("question_button","Recommend package",class="btn-primary")
       )
-    ),
+    )
+  ),
 
     # Output response
-    div(
-      class = "well",
-      div(
-        strong(textOutput("api_response_name")),
-        textOutput("api_response_description"),
-        tags$a(href=textOutput("api_response_link"), "Go to package",target="_blank")
-      )
-    ),
+    hidden(
+      div(id = "output-response1",
+        class = "well",
+        div(
+          strong(textOutput("api_response_name")),
+          textOutput("api_response_description"),
+          tags$a(href=textOutput("api_response_link"), "Go to package",target="_blank")
+        )
+      ),
+
     div(class = "text-center",
-        p(em("Code generated using the OpenAI API."))
+        p(em("Output generated using the OpenAI API."))
     )
-  )
+    )
+
   
   
 ) # END UI
@@ -116,7 +120,6 @@ server <- function(input, output, session) {
   
 
   # Output LLM completion
-  
   observeEvent(input$question_button,{
 
     waiter_show(html = wait_screen,color="#b7c9e2")
@@ -143,6 +146,8 @@ server <- function(input, output, session) {
     output$api_response_description <- renderText({ best_match$description })
     
     output$api_response_link <- renderText({ best_match$link })
+    
+    shinyjs::show("output-response1")
     
     waiter_hide()
     
