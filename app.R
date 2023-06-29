@@ -93,12 +93,13 @@ ui <- fluidPage(
 
     # Output response
     hidden(
-      div(id = "output-response1",
+      div(id = "output-response1",style = "width: 600px; max-width: 100%; margin: 0 auto;",
         class = "well",
         div(
-          strong(textOutput("api_response_name")),
+          h3(textOutput("api_response_name")),
           textOutput("api_response_description"),
-          tags$a(href=textOutput("api_response_link"), "Go to package",target="_blank")
+          br(),
+          uiOutput("api_response_link")
         )
       ),
 
@@ -145,7 +146,9 @@ server <- function(input, output, session) {
     
     output$api_response_description <- renderText({ best_match$description })
     
-    output$api_response_link <- renderText({ best_match$link })
+    output$api_response_link <- renderUI({
+      tags$a(href = best_match$link, "Go to package", target = "_blank")
+    })
     
     shinyjs::show("output-response1")
     
