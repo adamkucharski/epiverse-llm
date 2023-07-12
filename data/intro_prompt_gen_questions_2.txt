@@ -1,0 +1,1 @@
+ questions that a person might ask based on the content of the input text, as well as the corresponding answers for each question. Number each question and answer and put each one on a new line. If you generate a question but do not know the answer, say you do not know.
