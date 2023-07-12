@@ -71,7 +71,7 @@ ui <- fluidPage(
     div(
       class = "well",
       div(class = "text-center",
-          h4("Use LLMs to suggest relevant packages and functions"),
+          h3("Suggest relevant packages and functions for outbreak analytics tasks"),
           br(),
           p(strong("Note: this dashboard is under development, so generated outputs are likely to have errors"))
       )
@@ -95,28 +95,31 @@ ui <- fluidPage(
     # Output package
     hidden(
       div(id = "output-response1",style = "width: 600px; max-width: 100%; margin: 0 auto;",
-        class = "well",
         div(
-          h3(textOutput("api_response_name")),
+          class = "well",
+          p(strong("Suggested package:"),verbatimTextOutput("api_response_name")),
           textOutput("api_response_description"),
           br(),
           uiOutput("api_response_link")
         )
-      )
+      ),
+      br()
     ),
   
   # Output response
   hidden(
     div(id = "output-response2",style = "width: 600px; max-width: 100%; margin: 0 auto;",
-        class = "well",
         div(
-          #textOutput("generated_answer"),
-          uiOutput("generated_answer"),
+          class = "well",
+          p(strong("Suggested functions:")),
+          #textOutput("generated_answer")
+          uiOutput("generated_answer")
         )
-    ),
-    div(class = "text-center",
-        p(em("Output generated using the OpenAI API."))
     )
+  ),
+  div(class = "text-center",
+      br(),
+      p(em("Output generated using the OpenAI API."))
   )
   
 
@@ -219,8 +222,10 @@ server <- function(input, output, session) {
     # Extract response
     generated_a <- llm_completion_med$choices$message.content
     
+    print(generated_a)
+    
     # Generate UI object with includeMarkdown
-    #output$generated_answer <- renderText({ generated_a })
+    output$generated_answer <- renderText({ generated_a })
     
     output$generated_answer <- renderUI({
       HTML(markdownToHTML(text = generated_a, fragment.only = TRUE))
