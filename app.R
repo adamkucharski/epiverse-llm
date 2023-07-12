@@ -14,8 +14,7 @@ library(readr)
 library(waiter)
 library(shinythemes)
 library(lsa) 
-
-
+library(markdown)
 
 
 # Local testing - - -
@@ -111,7 +110,8 @@ ui <- fluidPage(
     div(id = "output-response2",style = "width: 600px; max-width: 100%; margin: 0 auto;",
         class = "well",
         div(
-          textOutput("generated_answer"),
+          #textOutput("generated_answer"),
+          uiOutput("generated_answer"),
         )
     ),
     div(class = "text-center",
@@ -156,7 +156,7 @@ server <- function(input, output, session) {
     sort_sim <- base::order(cosine_sim,decreasing=T)
     
     # Find top matches and choose package:
-    n_match <- 5
+    n_match <- 6
     top_pick <- sort_sim[1:n_match]
     top_packages <- package_names[top_pick]
     pick_package <- names(which.max(table(top_packages))) 
@@ -164,25 +164,43 @@ server <- function(input, output, session) {
     # Extract top entries from best matching packages
     package_match <- which(package_names==pick_package)
 
-    # Extract top 5 matches in order
+    # Extract top matches in order, and select this number (or maximum, whichever smaller)
     match_to_ranking <- match(sort_sim,package_match); match_to_ranking <- match_to_ranking[!is.na(match_to_ranking)]
-    best_entries_for_package <- package_match[match_to_ranking[1:n_match]]
+    n_match_2 <- min(length(match_to_ranking),n_match)
+    best_entries_for_package <- package_match[match_to_ranking[1:n_match_2]]
     
     context_text <- paste(package_chunks[sort(best_entries_for_package)],collapse="\n")
+    
+    
+    # Generate summary of context text
+    # 
+    # llm_completion_med <- create_chat_completion(
+    #   model = "gpt-3.5-turbo", # "text-davinci-003",
+    #   messages = list(list("role"="system","content" = intro_prompt_sys),
+    #                   list("role"="user","content" = paste0(intro_prompt,
+    #                                                         "Context: ",context_text,
+    #                                                         "Question: ",query_text,
+    #                                                         "Answer:"))
+    #   ),
+    #   temperature = 0,
+    #   openai_api_key = credential_load$value,
+    #   max_tokens = 2500
+    # )
+    
     
     # Generate answer
 
     llm_completion_med <- create_chat_completion(
-      model = "gpt-3.5-turbo", # "text-davinci-003",
+      model = "gpt-3.5-turbo", # "text-davinci-003", #gpt-3.5-turbo-16k
       messages = list(list("role"="system","content" = intro_prompt_sys),
-                      list("role"="user","content" = paste0(intro_prompt_sys,
+                      list("role"="user","content" = paste0(intro_prompt,
                                                             "Context: ",context_text,
                                                             "Question: ",query_text,
                                                             "Answer:"))
       ),
       temperature = 0,
       openai_api_key = credential_load$value,
-      max_tokens = 1500
+      max_tokens = 800
     )
     
     # Render response for package
@@ -200,7 +218,14 @@ server <- function(input, output, session) {
     
     # Extract response
     generated_a <- llm_completion_med$choices$message.content
-    output$generated_answer <- renderText({ generated_a })
+    
+    # Generate UI object with includeMarkdown
+    #output$generated_answer <- renderText({ generated_a })
+    
+    output$generated_answer <- renderUI({
+      HTML(markdownToHTML(text = generated_a, fragment.only = TRUE))
+    })
+
     
     shinyjs::show("output-response1")
     shinyjs::show("output-response2")

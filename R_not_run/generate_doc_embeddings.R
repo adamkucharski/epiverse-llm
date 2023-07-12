@@ -26,27 +26,29 @@ package_descriptions_trace <- package_descriptions |> dplyr::filter(trace_extern
 
 # Load files and chunk
 
+load_and_chunk(package_descriptions_trace$value)
 
+generate_embeddings()
 
 
 # Old code for answer generation -----------------------------------------------------
 
 # Number of questions and answers to generate:
-n_questions <- 10
-
-llm_completion_med <- create_chat_completion(
-  model = "gpt-3.5-turbo", # "text-davinci-003",
-  messages = list(list("role"="system","content" = paste0(intro_prompt,n_questions,intro_prompt_2)),
-                  list("role"="user","content" = questions_01_md)
-  ),
-  temperature = 0,
-  openai_api_key = credential_load$value
-  #max_tokens = 1000
-)
-
-# Render response
-generated_q <- str_split(llm_completion_med$choices$message.content,"\n")[[1]]
-
-
-
+# n_questions <- 10
+# 
+# llm_completion_med <- create_chat_completion(
+#   model = "gpt-3.5-turbo", # "text-davinci-003",
+#   messages = list(list("role"="system","content" = paste0(intro_prompt,n_questions,intro_prompt_2)),
+#                   list("role"="user","content" = questions_01_md)
+#   ),
+#   temperature = 0,
+#   openai_api_key = credential_load$value
+#   #max_tokens = 1000
+# )
+# 
+# # Render response
+# generated_q <- str_split(llm_completion_med$choices$message.content,"\n")[[1]]
+# 
+# 
+# 
 

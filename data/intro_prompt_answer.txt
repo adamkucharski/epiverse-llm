@@ -1,1 +1,1 @@
-Write an answer for the question below based on the context provided. If the context does not provide sufficient information, reply "We did not find a good match for this task". Answer in an objective tone using simple language.
+Write an answer for the question below based only on the context provided. Assume that the user has not seen any of the context. Answer in an objective tone using simple language. 

@@ -1,6 +1,7 @@
 # Chunk string into given lengths -----------------------------------------
+# Default is chunks 2000 characters long
 
-split_string <- function(input_string, max_length = 500) {
+split_string <- function(input_string, max_length = 2000) {
   
   string_length <- nchar(input_string)
   num_chunks <- ceiling(string_length / max_length)
@@ -91,14 +92,15 @@ load_and_chunk <- function(package_list){
 generate_embeddings <- function(){
   
   # Load files
-  list_names <- read_rds(list_names,paste0("data/chunked_text/package_names.rds"))
-  list_chunks <- read_rds(list_chunks,paste0("data/chunked_text/package_chunks.rds"))
+  list_names <- read_rds("data/chunked_text/package_names.rds")
+  list_chunks <- read_rds("data/chunked_text/package_chunks.rds")
   
   # Define Open AI embedding vector size
   total_chunks <- length(list_chunks)
   
   embed_size <- 1536
   store_embeddings <- matrix(NA,nrow=total_chunks,embed_size)
+  pb <- txtProgressBar(1,total_chunks,style=3,title="Embedding:")
   
   for(ii in 1:total_chunks){
     
@@ -114,7 +116,12 @@ generate_embeddings <- function(){
     
     store_embeddings[ii,] <- output_vec
     
+    # Display progress
+    setTxtProgressBar(pb, ii)
+    
   }
+  
+  close(pb) # Close bar
   
   write_rds(store_embeddings,paste0("data/embeddings/package_chunk_embeddings.rds"))
   
