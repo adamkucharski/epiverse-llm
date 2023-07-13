@@ -23,7 +23,7 @@ library(markdown)
 
 wait_screen <- tagList(
   spin_orbiter(),
-  h4("Finding package...")
+  h4("Generating suggestion...")
 )
 
 # Plotting and helper functions ------------------------------------------------------------------
@@ -159,7 +159,7 @@ server <- function(input, output, session) {
     sort_sim <- base::order(cosine_sim,decreasing=T)
     
     # Find top matches and choose package:
-    n_match <- 6
+    n_match <- 5
     top_pick <- sort_sim[1:n_match]
     top_packages <- package_names[top_pick]
     pick_package <- names(which.max(table(top_packages))) 
